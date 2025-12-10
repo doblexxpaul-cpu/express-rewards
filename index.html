@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Express Rewards - Earn $5 via PayPal per Completed Offer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --bg: #0f172a;
+      --bg-card: #020617;
+      --accent: #22c55e;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --danger: #f97373;
+      --border: #1f2937;
+      --radius-lg: 18px;
+      --radius-full: 999px;
+      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1f2937 0, #020617 55%, #000 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 32px 16px 48px;
+    }
+
+    .header {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin-bottom: 32px;
+    }
+
+    @media (min-width: 768px) {
+      .header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #60a5fa, #1d4ed8 55%, #020617 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 22px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .brand-text h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .brand-text span {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .trust-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--muted);
+      justify-content: flex-start;
+    }
+
+    .badge {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(10px);
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.25);
+    }
+
+    .hero {
+      margin-bottom: 32px;
+      display: grid;
+      gap: 20px;
+    }
+
+    @media (min-width: 768px) {
+      .hero {
+        grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.2fr);
+        align-items: stretch;
+      }
+    }
+
+    .hero-main {
+      background: radial-gradient(circle at top left, #111827 0, #020617 45%, #020617 100%);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      padding: 20px 20px 20px;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-main::before {
+      content: "";
+      position: absolute;
+      inset: -80px;
+      background:
+        radial-gradient(circle at 10% 0, rgba(59, 130, 246, 0.13), transparent 55%),
+        radial-gradient(circle at 90% 0, rgba(56, 189, 248, 0.12), transparent 55%);
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      margin-bottom: 10px;
+    }
+
+    .chip span {
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .hero h2 {
+      font-size: 26px;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    @media (min-width: 768px) {
+      .hero h2 {
+        font-size: 30px;
+      }
+    }
+
+    .hero-highlight {
+      background: linear-gradient(to right, #60a5fa, #22c55e);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero p {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 14px;
+      max-width: 520px;
+    }
+
+    .hero-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+      font-size: 12px;
+    }
+
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(31, 41, 55, 0.95);
+    }
+
+    .step-number {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.24);
+      border: 1px solid rgba(96, 165, 250, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+    }
+
+    .hero-note {
+      font-size: 11px;
+      color: var(--muted);
+      border-top: 1px dashed rgba(55, 65, 81, 0.9);
+      padding-top: 8px;
+    }
+
+    .hero-note strong {
+      color: #e5e7eb;
+    }
+
+    .hero-offer-image {
+      background: radial-gradient(circle at top, #1e293b 0, #020617 60%);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .offer-tagline {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .offer-banner {
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      padding: 14px 16px;
+      background:
+        radial-gradient(circle at 0 0, rgba(59, 130, 246, 0.2), transparent 60%),
+        radial-gradient(circle at 100% 100%, rgba(34, 197, 94, 0.2), transparent 60%),
+        #020617;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .offer-banner-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .offer-banner-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .offer-banner-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.92);
+      font-size: 11px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+    }
+
+    .offer-banner-pill strong {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .offer-banner-highlight {
+      position: absolute;
+      right: 12px;
+      top: 10px;
+      font-size: 10px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.18);
+      border: 1px solid rgba(96, 165, 250, 0.8);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .stats {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+      font-size: 11px;
+    }
+
+    .stat {
+      padding: 8px 10px;
+      border-radius: 14px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 2px;
+    }
+
+    .offers-section {
+      margin-top: 10px;
+    }
+
+    .offers-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .offers-header h3 {
+      font-size: 16px;
+    }
+
+    .offers-header span {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .offers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 16px;
+    }
+
+    .offer-card {
+      background: rgba(15, 23, 42, 0.98);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(31, 41, 55, 0.95);
+      padding: 13px 13px 12px;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .offer-image {
+      height: 110px;
+      border-radius: 14px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Pseudo-images via gradients – you can swap these for real images later */
+    .offer-image--cash {
+      background-image: linear-gradient(135deg, #22c55e, #15803d);
+    }
+    .offer-image--survey {
+      background-image: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    }
+    .offer-image--app {
+      background-image: linear-gradient(135deg, #a855f7, #7c3aed);
+    }
+    .offer-image--giftcard {
+      background-image: linear-gradient(135deg, #f97316, #c2410c);
+    }
+    .offer-image--crypto {
+      background-image: linear-gradient(135deg, #facc15, #eab308);
+    }
+    .offer-image--shopping {
+      background-image: linear-gradient(135deg, #ec4899, #db2777);
+    }
+
+    .offer-image-label {
+      position: absolute;
+      left: 10px;
+      bottom: 10px;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(15, 23, 42, 0.9);
+    }
+
+    .offer-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 13px;
+    }
+
+    .offer-title {
+      font-weight: 600;
+    }
+
+    .offer-desc {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .offer-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      margin-top: 2px;
+    }
+
+    .offer-meta span {
+      color: var(--muted);
+    }
+
+    .offer-meta strong {
+      color: var(--accent);
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1.1fr 1.1fr;
+      gap: 8px;
+      margin-top: 2px;
+      align-items: center;
+    }
+
+    @media (max-width: 380px) {
+      .actions {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .btn {
+      border: none;
+      outline: none;
+      cursor: pointer;
+      font-family: inherit;
+      border-radius: var(--radius-full);
+      padding: 9px 12px;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease,
+        border-color 0.08s ease;
+      white-space: nowrap;
+    }
+
+    .btn:active {
+      transform: translateY(1px) scale(0.99);
+    }
+
+    .btn-offer {
+      background: linear-gradient(to right, var(--primary), var(--primary-dark));
+      color: #f9fafb;
+      box-shadow: 0 10px 18px rgba(37, 99, 235, 0.35);
+    }
+
+    .btn-offer:hover {
+      filter: brightness(1.05);
+    }
+
+    .btn-paypal {
+      background: #111827;
+      color: #e5e7eb;
+      border: 1px solid rgba(55, 65, 81, 0.95);
+      font-weight: 500;
+    }
+
+    .btn-paypal span:first-child {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .btn-paypal.locked {
+      opacity: 0.85;
+    }
+
+    .btn-paypal.locked:hover {
+      border-color: rgba(55, 65, 81, 0.95);
+    }
+
+    .btn-paypal .pp-badge {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #0f172a;
+      border: 1px solid rgba(37, 99, 235, 0.65);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .legal-note {
+      margin-top: 18px;
+      font-size: 11px;
+      color: var(--muted);
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px dashed rgba(55, 65, 81, 0.9);
+      background: rgba(15, 23, 42, 0.82);
+    }
+
+    .legal-note strong {
+      color: #e5e7eb;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%) translateY(120%);
+      background: #111827;
+      color: #f9fafb;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      box-shadow: var(--shadow-soft);
+      max-width: 90%;
+      text-align: center;
+      z-index: 50;
+      opacity: 0;
+      transition: opacity 0.18s ease-out, transform 0.18s ease-out;
+    }
+
+    .toast.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast-indicator {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--danger);
+      box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.25);
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <div class="brand">
+        <div class="brand-logo">R</div>
+        <div class="brand-text">
+          <h1>Express Rewards</h1>
+          <span>Private offer wall</span>
+        </div>
+      </div>
+      <div>
+        <div class="trust-badges">
+          <div class="badge">
+            <div class="badge-dot"></div>
+            Manual payouts in under 24h*
+          </div>
+          <div class="badge">
+            ⭐ Over 1,200 withdrawals processed
+          </div>
+          <div class="badge">
+            🔒 Secure SSL connections
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-main">
+        <div class="hero-inner">
+          <div class="chip">
+            <span>Daily bonus</span> | Complete 1 offer and unlock your payout
+          </div>
+          <h2>
+            Complete one verified offer and get
+            <span class="hero-highlight">$5 via PayPal</span>
+            as a fixed reward.
+          </h2>
+          <p>
+            Pick one of the verified offers, finish it all the way, and your
+            <strong>$5</strong> balance will become available for manual cash out via PayPal.
+          </p>
+
+          <div class="hero-steps">
+            <div class="step">
+              <div class="step-number">1</div>
+              <div>
+                <strong>Choose an offer</strong><br />
+                Click “Complete offer” on any of the active options below.
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">2</div>
+              <div>
+                <strong>Complete the process</strong><br />
+                Follow all the steps until the end (signup, survey, app action, etc.).
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">3</div>
+              <div>
+                <strong>Request your payout</strong><br />
+                Once at least one offer is confirmed as completed, we can send you $5 via PayPal.
+              </div>
+            </div>
+          </div>
+
+          <p class="hero-note">
+            <strong>Important:</strong> if you don’t complete at least one offer, the PayPal withdrawal
+            button will stay locked and we can’t process any payment.
+          </p>
+        </div>
+      </div>
+
+      <aside class="hero-offer-image">
+        <div>
+          <p class="offer-tagline">Highlighted bonus for today</p>
+          <div class="offer-banner">
+            <div class="offer-banner-title">Earn $5 today</div>
+            <div class="offer-banner-sub">
+              Complete just one verified offer and request your welcome payout via PayPal.
+            </div>
+            <div class="offer-banner-pill">
+              🔁 <span>1 completed offer = </span> <strong>$5 USD</strong>
+            </div>
+            <div class="offer-banner-highlight">New user bonus</div>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat">
+            <strong>89%</strong>
+            approval rate
+          </div>
+          <div class="stat">
+            <strong>~7 min</strong>
+            average time per offer
+          </div>
+          <div class="stat">
+            <strong>$5.00</strong>
+            fixed payout per withdrawal
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="offers-section">
+      <div class="offers-header">
+        <h3>Select one of the verified offers</h3>
+        <span>You must complete at least 1 offer to unlock the $5 PayPal withdrawal.</span>
+      </div>
+
+      <div class="offers-grid">
+
+        <!-- Offer 1 -->
+        <article class="offer-card">
+          <div class="offer-image offer-image--cash">
+            <div class="offer-image-label">Quick sign-up · Limited countries</div>
+          </div>
+          <div class="offer-content">
+            <div class="offer-title">Welcome bonus on survey panel</div>
+            <div class="offer-desc">
+              Sign up with your real email, confirm it, and complete the initial profile so the offer can be validated.
+            </div>
+            <div class="offer-meta">
+              <span>Estimated time: 5–7 min</span>
+              <strong>Reward: $5</strong>
+            </div>
+          </div>
+          <div class="actions">
+            <a href="https://alignmentfiles.com/1860524" target="_blank" rel="noopener noreferrer">
+              <button class="btn btn-offer">Complete offer</button>
+            </a>
+            <button class="btn btn-paypal locked js-paypal-btn">
+              <span>PayPal</span>
+              <span class="pp-badge">$5 withdraw</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- Offer 2 -->
+        <article class="offer-card">
+          <div class="offer-image offer-image--survey">
+            <div class="offer-image-label">Surveys · Basic profile</div>
+          </div>
+          <div class="offer-content">
+            <div class="offer-title">Paid opinion survey for new users</div>
+            <div class="offer-desc">
+              Complete a short consumer opinion survey. You must reach the very end and submit your responses.
+            </div>
+            <div class="offer-meta">
+              <span>Estimated time: 8–10 min</span>
+              <strong>Reward: $5</strong>
+            </div>
+          </div>
+          <div class="actions">
+            <a href="https://alignmentfiles.com/1860524" target="_blank" rel="noopener noreferrer">
+              <button class="btn btn-offer">Complete offer</button>
+            </a>
+            <button class="btn btn-paypal locked js-paypal-btn">
+              <span>PayPal</span>
+              <span class="pp-badge">$5 withdraw</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- Offer 3 -->
+        <article class="offer-card">
+          <div class="offer-image offer-image--app">
+            <div class="offer-image-label">Mobile app · Install & use</div>
+          </div>
+          <div class="offer-content">
+            <div class="offer-title">Download an app and reach level 2</div>
+            <div class="offer-desc">
+              Install the free app, create your account and reach the required in-app level or action.
+            </div>
+            <div class="offer-meta">
+              <span>Estimated time: 10–15 min</span>
+              <strong>Reward: $5</strong>
+            </div>
+          </div>
+          <div class="actions">
+            <a href="https://alignmentfiles.com/1860524" target="_blank" rel="noopener noreferrer">
+              <button class="btn btn-offer">Complete offer</button>
+            </a>
+            <button class="btn btn-paypal locked js-paypal-btn">
+              <span>PayPal</span>
+              <span class="pp-badge">$5 withdraw</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- Offer 4 -->
+        <article class="offer-card">
+          <div class="offer-image offer-image--giftcard">
+            <div class="offer-image-label">Gift card · Sign up & validate</div>
+          </div>
+          <div class="offer-content">
+            <div class="offer-title">Earn points for gift cards</div>
+            <div class="offer-desc">
+              Register and complete the required steps inside the site (account + first goal or action).
+            </div>
+            <div class="offer-meta">
+              <span>Estimated time: 6–9 min</span>
+              <strong>Reward: $5</strong>
+            </div>
+          </div>
+          <div class="actions">
+            <a href="https://alignmentfiles.com/1860524" target="_blank" rel="noopener noreferrer">
+              <button class="btn btn-offer">Complete offer</button>
+            </a>
+            <button class="btn btn-paypal locked js-paypal-btn">
+              <span>PayPal</span>
+              <span class="pp-badge">$5 withdraw</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- Offer 5 -->
+        <article class="offer-card">
+          <div class="offer-image offer-image--crypto">
+            <div class="offer-image-label">Digital wallet · Basic KYC</div>
+          </div>
+          <div class="offer-content">
+            <div class="offer-title">Create a free verified wallet</div>
+            <div class="offer-desc">
+              Open an account in a digital wallet platform, complete registration and basic verification if required.
+            </div>
+            <div class="offer-meta">
+              <span>Estimated time: 8–12 min</span>
+              <strong>Reward: $5</strong>
+            </div>
+          </div>
+          <div class="actions">
+            <a href="https://alignmentfiles.com/1860524" target="_blank" rel="noopener noreferrer">
+              <button class="btn btn-offer">Complete offer</button>
+            </a>
+            <button class="btn btn-paypal locked js-paypal-btn">
+              <span>PayPal</span>
+              <span class="pp-badge">$5 withdraw</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- Offer 6 -->
+        <article class="offer-card">
+          <div class="offer-image offer-image--shopping">
+            <div class="offer-image-label">Cashback site · First account</div>
+          </div>
+          <div class="offer-content">
+            <div class="offer-title">Activate a cashback account</div>
+            <div class="offer-desc">
+              Sign up on a cashback platform and complete the required step so that the offer is tracked as valid.
+            </div>
+            <div class="offer-meta">
+              <span>Estimated time: 5–8 min</span>
+              <strong>Reward: $5</strong>
+            </div>
+          </div>
+          <div class="actions">
+            <a href="https://alignmentfiles.com/1860524" target="_blank" rel="noopener noreferrer">
+              <button class="btn btn-offer">Complete offer</button>
+            </a>
+            <button class="btn btn-paypal locked js-paypal-btn">
+              <span>PayPal</span>
+              <span class="pp-badge">$5 withdraw</span>
+            </button>
+          </div>
+        </article>
+
+      </div>
+
+      <div class="legal-note">
+        <strong>Legal & payment notice:</strong> the $5 PayPal reward is sent manually once at least
+        one offer shows as correctly completed in the advertiser’s system (this may take several hours
+        to be confirmed). We cannot process any payment if the offer does not appear as completed or
+        if fraud or abuse is detected. This page only acts as a private offer wall and reward panel.
+        We are not affiliated with PayPal; PayPal is used solely as a payout method.
+      </div>
+    </section>
+  </div>
+
+  <!-- Toast / message when they try to withdraw without completed offer -->
+  <div id="toast" class="toast">
+    <div class="toast-indicator"></div>
+    <div>
+      To request your <strong>$5 PayPal</strong> payout, you must first complete at least one offer
+      and wait for it to be confirmed. Only then can we unlock the withdrawal.
+    </div>
+  </div>
+
+  <script>
+    // For now, all PayPal buttons stay locked and just show the message.
+    // Once you have backend / tracking, you can change this logic depending on user status.
+
+    const paypalButtons = document.querySelectorAll(".js-paypal-btn");
+    const toast = document.getElementById("toast");
+    let toastTimeout = null;
+
+    function showToast() {
+      if (!toast) return;
+      toast.classList.add("visible");
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove("visible");
+      }, 3600);
+    }
+
+    paypalButtons.forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        showToast();
+      });
+    });
+  </script>
+</body>
+</html>
